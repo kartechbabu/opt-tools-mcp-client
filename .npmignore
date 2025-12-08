@@ -1,0 +1,23 @@
+# Source files
+src/
+tests/
+examples/
+
+# Config files
+tsconfig.json
+.eslintrc.js
+jest.config.js
+
+# Development files
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Documentation (keep README.md)
+*.md
+!README.md
+
+# Other
+*.log
+.DS_Store

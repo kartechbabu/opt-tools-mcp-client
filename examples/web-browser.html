@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opt-Tools Client - Browser Example</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-top: 0;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #555;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea {
+      min-height: 100px;
+      font-family: monospace;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 4px solid #007bff;
+      display: none;
+    }
+    .result.success {
+      border-left-color: #28a745;
+      background: #d4edda;
+    }
+    .result.error {
+      border-left-color: #dc3545;
+      background: #f8d7da;
+    }
+    pre {
+      background: #fff;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    .loading {
+      color: #007bff;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Opt-Tools Optimization Client</h1>
+    <p>Solve linear programming, mixed-integer programming, and TSP problems directly from your browser.</p>
+
+    <div class="form-group">
+      <label for="serverUrl">Server URL</label>
+      <input type="text" id="serverUrl" value="https://api.opt-tools.com" placeholder="https://api.opt-tools.com">
+    </div>
+
+    <div class="form-group">
+      <label for="apiKey">API Key</label>
+      <input type="password" id="apiKey" placeholder="Enter your API key">
+    </div>
+
+    <div class="form-group">
+      <label for="problemType">Problem Type</label>
+      <select id="problemType">
+        <option value="lp">Linear Programming (LP)</option>
+        <option value="mip">Mixed-Integer Programming (MIP)</option>
+        <option value="tsp">Traveling Salesman Problem (TSP)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="problemData">Problem Data (JSON)</label>
+      <textarea id="problemData">{
+  "variables": [
+    {"name": "x", "type": "continuous", "lower_bound": 0},
+    {"name": "y", "type": "continuous", "lower_bound": 0}
+  ],
+  "objective": {
+    "type": "maximize",
+    "expression": "3*x + 2*y"
+  },
+  "constraints": [
+    {"expression": "x + y <= 10", "type": "inequality"},
+    {"expression": "2*x + y <= 15", "type": "inequality"}
+  ],
+  "generate_report": true
+}</textarea>
+    </div>
+
+    <button onclick="solveProblem()" id="solveBtn">Solve Problem</button>
+    <button onclick="loadExample()">Load Example</button>
+
+    <div id="result" class="result">
+      <h3>Result</h3>
+      <div id="resultContent"></div>
+    </div>
+  </div>
+
+  <!-- Load axios from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios-retry@4.0.0/dist/index.js"></script>
+
+  <script>
+    // Initialize client on demand
+    function createClient() {
+      const serverUrl = document.getElementById('serverUrl').value;
+      const apiKey = document.getElementById('apiKey').value;
+
+      if (!apiKey) {
+        throw new Error('Please enter your API key');
+      }
+
+      const client = axios.create({
+        baseURL: serverUrl,
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+        },
+      });
+
+      // Configure retry logic
+      axiosRetry(client, {
+        retries: 3,
+        retryDelay: axiosRetry.exponentialDelay,
+        retryCondition: (error) => {
+          return axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+            (error.response?.status === 429) ||
+            (error.response?.status === 503);
+        },
+      });
+
+      return client;
+    }
+
+    async function solveProblem() {
+      const resultDiv = document.getElementById('result');
+      const resultContent = document.getElementById('resultContent');
+      const solveBtn = document.getElementById('solveBtn');
+
+      try {
+        // Parse problem data
+        const problemData = JSON.parse(document.getElementById('problemData').value);
+        const problemType = document.getElementById('problemType').value;
+
+        // Show loading state
+        solveBtn.disabled = true;
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'result';
+        resultContent.innerHTML = '<p class="loading">Solving problem...</p>';
+
+        // Create client and solve
+        const client = createClient();
+        const endpoint = `/api/solve/${problemType}`;
+        const response = await client.post(endpoint, problemData);
+        const solution = response.data;
+
+        // Display success result
+        resultDiv.className = 'result success';
+        resultContent.innerHTML = `
+          <h4>Solution Found!</h4>
+          <p><strong>Status:</strong> ${solution.status}</p>
+          ${solution.objective_value !== undefined ?
+            `<p><strong>Objective Value:</strong> ${solution.objective_value}</p>` : ''}
+          ${solution.execution_time_ms !== undefined ?
+            `<p><strong>Execution Time:</strong> ${solution.execution_time_ms} ms</p>` : ''}
+          <h4>Solution:</h4>
+          <pre>${JSON.stringify(solution.solution, null, 2)}</pre>
+          ${solution.report_id ?
+            `<p><strong>Report ID:</strong> ${solution.report_id}</p>
+             <button onclick="viewReport('${solution.report_id}')">View HTML Report</button>` : ''}
+        `;
+
+      } catch (error) {
+        // Display error
+        resultDiv.className = 'result error';
+        resultDiv.style.display = 'block';
+
+        if (error.response) {
+          resultContent.innerHTML = `
+            <h4>Error</h4>
+            <p><strong>Status:</strong> ${error.response.status}</p>
+            <p><strong>Message:</strong> ${error.response.data.detail || error.response.data}</p>
+            <pre>${JSON.stringify(error.response.data, null, 2)}</pre>
+          `;
+        } else {
+          resultContent.innerHTML = `
+            <h4>Error</h4>
+            <p>${error.message}</p>
+          `;
+        }
+      } finally {
+        solveBtn.disabled = false;
+      }
+    }
+
+    async function viewReport(reportId) {
+      try {
+        const client = createClient();
+        const response = await client.get(`/api/reports/${reportId}`);
+
+        // Open report in new window
+        const newWindow = window.open();
+        newWindow.document.write(response.data);
+        newWindow.document.close();
+      } catch (error) {
+        alert('Error loading report: ' + error.message);
+      }
+    }
+
+    function loadExample() {
+      const problemType = document.getElementById('problemType').value;
+      const examples = {
+        lp: {
+          variables: [
+            {name: "chairs", type: "continuous", lower_bound: 0},
+            {name: "tables", type: "continuous", lower_bound: 0}
+          ],
+          objective: {
+            type: "maximize",
+            expression: "3*chairs + 2*tables"
+          },
+          constraints: [
+            {expression: "chairs + tables <= 10", type: "inequality"},
+            {expression: "2*chairs + tables <= 15", type: "inequality"}
+          ],
+          generate_report: true
+        },
+        mip: {
+          variables: [
+            {name: "x", type: "continuous", lower_bound: 0},
+            {name: "y", type: "integer", lower_bound: 0, upper_bound: 10},
+            {name: "z", type: "binary"}
+          ],
+          objective: {
+            type: "maximize",
+            expression: "10*x + 15*y + 20*z"
+          },
+          constraints: [
+            {expression: "x + 2*y + 3*z <= 100", type: "inequality"}
+          ],
+          generate_report: true
+        },
+        tsp: {
+          locations: [
+            {name: "Warehouse", lat: 37.7749, lon: -122.4194},
+            {name: "Customer A", lat: 37.8044, lon: -122.2712},
+            {name: "Customer B", lat: 37.6879, lon: -122.4702},
+            {name: "Customer C", lat: 37.7580, lon: -122.4430}
+          ],
+          start_location: "Warehouse",
+          end_location: "Warehouse",
+          generate_report: true
+        }
+      };
+
+      document.getElementById('problemData').value = JSON.stringify(examples[problemType], null, 2);
+    }
+
+    // Load initial example
+    window.onload = function() {
+      loadExample();
+    };
+  </script>
+</body>
+</html>

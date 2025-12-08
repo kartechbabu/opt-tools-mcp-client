@@ -1,0 +1,54 @@
+{
+  "name": "@opt-tools/mcp-client",
+  "version": "1.0.0",
+  "description": "TypeScript client for Opt-Tools optimization API with MCP support",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "optimization",
+    "mcp",
+    "or-tools",
+    "linear-programming",
+    "typescript",
+    "claude-code"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kartbabu/opt-tools-mcp-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kartbabu/opt-tools-mcp-client/issues"
+  },
+  "homepage": "https://github.com/kartbabu/opt-tools-mcp-client#readme",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "axios-retry": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.50.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
