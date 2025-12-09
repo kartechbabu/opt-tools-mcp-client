@@ -2,6 +2,6 @@
  * Type definitions export
  */
 
-export * from './config';
-export * from './problems';
-export * from './solutions';
+export * from './config.js';
+export * from './problems.js';
+export * from './solutions.js';

@@ -2,7 +2,7 @@
  * Main Optimization Client
  */
 
-import { HttpTransport } from './transport/http';
+import { HttpTransport } from './transport/http.js';
 import {
   OptimizationClientConfig,
   LpProblem,
@@ -11,7 +11,7 @@ import {
   SolveResponse,
   AnalysisResponse,
   ReportMetadata,
-} from './types';
+} from './types/index.js';
 
 export class OptimizationClient {
   private transport: HttpTransport;

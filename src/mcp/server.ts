@@ -17,7 +17,7 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-import { OptimizationClient } from '../client';
+import { OptimizationClient } from '../client.js';
 
 // Get configuration from environment
 const SERVER_URL = process.env.OPT_TOOLS_SERVER_URL || 'http://164.92.92.181';

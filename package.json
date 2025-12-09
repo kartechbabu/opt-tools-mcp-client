@@ -1,6 +1,7 @@
 {
   "name": "@kartech/opt-tools-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "type": "module",
   "description": "MCP server and TypeScript client for Opt-Tools optimization API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
