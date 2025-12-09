@@ -1,30 +1,92 @@
 # @opt-tools/mcp-client
 
-TypeScript/JavaScript client library for the Opt-Tools optimization API. Solve linear programming (LP), mixed-integer programming (MIP), and traveling salesman problems (TSP) with a simple, type-safe interface.
+MCP server and TypeScript client for the Opt-Tools optimization API. Solve linear programming (LP), mixed-integer programming (MIP), and traveling salesman problems (TSP) with Claude Desktop/Code or programmatically.
 
 ## Features
 
+- **MCP Server** - Use optimization tools directly in Claude Desktop or Claude Code
 - **Type-safe** - Full TypeScript support with detailed type definitions
 - **Reliable** - Automatic retry logic with exponential backoff
 - **Simple** - Clean, promise-based API
 - **Flexible** - Works in Node.js, browsers, and edge runtimes
-- **MCP-ready** - Built for integration with Model Context Protocol
 
-## Installation
+## Quick Start: MCP Server for Claude
+
+### Claude Desktop
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "opt-tools": {
+      "command": "npx",
+      "args": ["-y", "@opt-tools/mcp-client"],
+      "env": {
+        "OPT_TOOLS_SERVER_URL": "http://164.92.92.181",
+        "OPT_TOOLS_API_KEY": "demo_key"
+      }
+    }
+  }
+}
+```
+
+### Claude Code
+
+Add to `.mcp.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "opt-tools": {
+      "command": "npx",
+      "args": ["-y", "@opt-tools/mcp-client"],
+      "env": {
+        "OPT_TOOLS_SERVER_URL": "http://164.92.92.181",
+        "OPT_TOOLS_API_KEY": "demo_key"
+      }
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+Once configured, Claude will have access to:
+
+| Tool | Description |
+|------|-------------|
+| `solve_lp` | Solve linear programming problems (resource allocation, production planning) |
+| `solve_mip` | Solve mixed-integer problems (knapsack, facility location, scheduling) |
+| `solve_tsp` | Find optimal routes visiting multiple locations |
+| `analyze_problem` | Analyze natural language problem descriptions |
+| `get_report` | Retrieve HTML reports with visualizations |
+
+### Example Prompts for Claude
+
+- "Solve this LP: maximize 3x + 2y subject to x + y <= 10 and 2x + y <= 15, where x, y >= 0"
+- "Find the shortest route visiting San Francisco, Oakland, Berkeley, and Palo Alto starting from SF"
+- "I have 5 items with weights [2,3,4,5,9] and values [3,4,8,8,10]. My bag holds 20kg. Which items should I take?"
+
+---
+
+## Programmatic Usage
+
+### Installation
 
 ```bash
 npm install @opt-tools/mcp-client
 ```
 
-## Quick Start
+### Quick Start
 
 ```typescript
 import { OptimizationClient } from '@opt-tools/mcp-client';
 
 // Initialize client
 const client = new OptimizationClient({
-  serverUrl: 'https://api.opt-tools.com',
-  apiKey: 'your-api-key-here',
+  serverUrl: 'http://164.92.92.181',
+  apiKey: 'demo_key',
   timeout: 30000,  // Optional: 30 seconds
   retries: 3,      // Optional: retry failed requests
   debug: false     // Optional: enable debug logging
@@ -280,8 +342,8 @@ Default timeout is 30 seconds. For complex optimization problems, increase the t
 
 ```typescript
 const client = new OptimizationClient({
-  serverUrl: 'https://api.opt-tools.com',
-  apiKey: 'your-key',
+  serverUrl: 'http://164.92.92.181',
+  apiKey: 'demo_key',
   timeout: 120000  // 2 minutes
 });
 
@@ -298,8 +360,8 @@ Enable debug mode to see detailed request/response logs:
 
 ```typescript
 const client = new OptimizationClient({
-  serverUrl: 'https://api.opt-tools.com',
-  apiKey: 'your-key',
+  serverUrl: 'http://164.92.92.181',
+  apiKey: 'demo_key',
   debug: true
 });
 
