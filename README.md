@@ -1,4 +1,4 @@
-# @opt-tools/mcp-client
+# @kartech/opt-tools-mcp
 
 MCP server and TypeScript client for the Opt-Tools optimization API. Solve linear programming (LP), mixed-integer programming (MIP), and traveling salesman problems (TSP) with Claude Desktop/Code or programmatically.
 
@@ -21,7 +21,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
   "mcpServers": {
     "opt-tools": {
       "command": "npx",
-      "args": ["-y", "@opt-tools/mcp-client"],
+      "args": ["-y", "@kartech/opt-tools-mcp"],
       "env": {
         "OPT_TOOLS_SERVER_URL": "http://164.92.92.181",
         "OPT_TOOLS_API_KEY": "demo_key"
@@ -40,7 +40,7 @@ Add to `.mcp.json` in your project root:
   "mcpServers": {
     "opt-tools": {
       "command": "npx",
-      "args": ["-y", "@opt-tools/mcp-client"],
+      "args": ["-y", "@kartech/opt-tools-mcp"],
       "env": {
         "OPT_TOOLS_SERVER_URL": "http://164.92.92.181",
         "OPT_TOOLS_API_KEY": "demo_key"
@@ -75,13 +75,13 @@ Once configured, Claude will have access to:
 ### Installation
 
 ```bash
-npm install @opt-tools/mcp-client
+npm install @kartech/opt-tools-mcp
 ```
 
 ### Quick Start
 
 ```typescript
-import { OptimizationClient } from '@opt-tools/mcp-client';
+import { OptimizationClient } from '@kartech/opt-tools-mcp';
 
 // Initialize client
 const client = new OptimizationClient({
